@@ -1,0 +1,15 @@
+.modal-close-animation {
+	animation: modalCloseAnimation 0.3s ease-in-out forwards;
+}
+
+@keyframes modalCloseAnimation {
+	0% {
+	}
+	100% {
+		top: var(--target-y);
+		left: var(--target-x);
+		width: 0;
+		height: 0;
+		opacity: 0;
+	}
+}

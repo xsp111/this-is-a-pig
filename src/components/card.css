@@ -1,0 +1,12 @@
+.card-clicked-animation {
+	--top: -100px;
+	animation: card-clicked-animation 0.7s ease-in-out;
+}
+@keyframes card-clicked-animation {
+	0% {
+		transform: translateY(var(--top)) translateX(var(--left));
+	}
+	100% {
+		transform: 0;
+	}
+}
