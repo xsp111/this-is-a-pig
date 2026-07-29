@@ -1,17 +1,17 @@
 import { useStore } from "zustand";
-import cardStore from "../store/cardStore";
+import gameStore from "@store/gameStore";
 import { useEffect } from "react";
-import { cardConfig } from "../const";
-import { generateCard, getRandom } from "../utils";
+import { cardConfig } from "@const";
+import { generateCard, getRandom } from "@utils";
 
 export default function useGenerateCards(isRandom: boolean = true) {
-  const setCardList = useStore(cardStore, (state) => state.setCardList);
+  const setCardList = useStore(gameStore, (state) => state.setCardList);
   const clearClickedCardList = useStore(
-    cardStore,
+    gameStore,
     (state) => state.clearClickedCardList,
   );
-  const gameStatus = useStore(cardStore, (state) => state.gameStatus);
-  const setGameStatus = useStore(cardStore, (state) => state.setGameStatus);
+  const gameStatus = useStore(gameStore, (state) => state.gameStatus);
+  const setGameStatus = useStore(gameStore, (state) => state.setGameStatus);
 
   useEffect(() => {
     if (gameStatus === "playing" && isRandom) {

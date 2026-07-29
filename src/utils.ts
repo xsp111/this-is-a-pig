@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
-import { boardConfig } from "./const";
-import type { Card } from "./store/cardStore";
+import { boardConfig } from "@const";
+import type { Card, CardList } from "@store/gameStore";
 
 export function getOriginalPos(x: number, y: number, index: number) {
   const { boardHeight, gridSize } = boardConfig;
@@ -36,7 +36,7 @@ export function generateCard(type: number): Card {
   };
 }
 
-export function getMatchPos(type: number, list: Card[]): number | undefined {
-  const index = list.findLastIndex((item) => item.type === type);
+export function getMatchPos(type: number, list: CardList): number | undefined {
+  const index = list.findLastIndex((item) => item?.type === type);
   return index !== -1 ? index : undefined;
 }

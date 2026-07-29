@@ -1,9 +1,9 @@
 import { useStore } from "zustand";
-import cardStore, { type Card } from "../../store/cardStore";
+import gameStore, { type Card } from "@store/gameStore";
 import { useEffect, useRef } from "react";
 
-import { getOriginalPos, twx } from "../../utils";
-import { boardConfig } from "../../const";
+import { getOriginalPos, twx } from "@utils";
+import { boardConfig } from "@const";
 
 const cardStyle = {
   box: "border border-gray-300 bg-red-300 rounded-md shadow-sm",
@@ -19,9 +19,9 @@ export default function Card({ card, index }: { card: Card; index: number }) {
     type,
   } = card;
   const cardRef = useRef<HTMLDivElement>(null);
-  const onClick = useStore(cardStore, (state) => state.onClick);
-  const setCardStatus = useStore(cardStore, (state) => state.setCardStatus);
-  const checkIsMatched = useStore(cardStore, (state) => state.checkIsMatched);
+  const onClick = useStore(gameStore, (state) => state.onClick);
+  const setCardStatus = useStore(gameStore, (state) => state.setCardStatus);
+  const checkIsMatched = useStore(gameStore, (state) => state.checkIsMatched);
 
   const { boardWidth, boardHeight, cardSize, gridSize } = boardConfig;
 

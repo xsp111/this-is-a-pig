@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getMatchPos } from "../utils";
+import { getMatchPos } from "@utils";
 
 export type Card = {
   id: string;
@@ -11,24 +11,26 @@ export type Card = {
   status: "pending" | "clicked" | "moveAway" | "matched";
 };
 
+export type CardList = Array<Card | undefined>;
+
 export type GameStatus = "playing" | "won" | "lost";
 
 interface GameState {
-  cardList: Card[];
-  clickedCardList: Card[];
+  cardList: CardList;
+  clickedCardList: CardList;
   gameStatus: GameStatus;
   setGameStatus: (gameStatus: GameStatus) => void;
 
   // card method
   pushCard: (card: Card) => void;
-  setCardList: (cardList: Card[]) => void;
+  setCardList: (cardList: CardList) => void;
   clearClickedCardList: () => void;
   onClick: (id: string) => void;
   setCardStatus: (id: Card["id"], status: Card["status"]) => void;
   checkIsMatched: (index: number) => void;
 }
 
-const cardStore = create<GameState>((_set, _get) => ({
+const gameStore = create<GameState>((_set, _get) => ({
   cardList: [],
   clickedCardList: [],
   gameStatus: "playing",
@@ -56,7 +58,7 @@ const cardStore = create<GameState>((_set, _get) => ({
     // 已点击区域满了后无法点击
     if (clickedCardList.length >= 7) return;
 
-    const card = cardList.find((item) => item.id === id);
+    const card = cardList.find((item) => item?.id === id);
     if (card) {
       const pos = getMatchPos(card.type, clickedCardList);
       if (typeof pos === "number") {
@@ -65,9 +67,9 @@ const cardStore = create<GameState>((_set, _get) => ({
             ...card,
             status: "moveAway",
           };
-        }) satisfies Card[];
+        }) as CardList;
         _set((state) => ({
-          cardList: [...state.cardList.filter((item) => item.id !== card.id)],
+          cardList: [...state.cardList.filter((item) => item?.id !== card.id)],
           clickedCardList: [
             ...clickedCardList.slice(0, pos + 1),
             {
@@ -82,7 +84,7 @@ const cardStore = create<GameState>((_set, _get) => ({
 
       _set((state) => {
         return {
-          cardList: [...state.cardList.filter((item) => item.id !== card.id)],
+          cardList: [...state.cardList.filter((item) => item?.id !== card.id)],
           clickedCardList: [
             ...state.clickedCardList,
             {
@@ -97,7 +99,7 @@ const cardStore = create<GameState>((_set, _get) => ({
   setCardStatus: (id, status) => {
     const { clickedCardList } = _get();
 
-    const index = clickedCardList.findIndex((card) => card.id === id);
+    const index = clickedCardList.findIndex((card) => card?.id === id);
 
     _set({
       clickedCardList: [
@@ -107,7 +109,7 @@ const cardStore = create<GameState>((_set, _get) => ({
           status: status,
         },
         ...clickedCardList.slice(index + 1),
-      ],
+      ] as CardList,
     });
   },
   checkIsMatched: (index) => {
@@ -116,8 +118,8 @@ const cardStore = create<GameState>((_set, _get) => ({
     const currentType = clickedCardList[index]?.type;
     if (!currentType) return;
     if (
-      currentType === clickedCardList[index - 1].type &&
-      currentType === clickedCardList[index - 2].type
+      currentType === clickedCardList?.[index - 1]?.type &&
+      currentType === clickedCardList?.[index - 2]?.type
     ) {
       _set({
         clickedCardList: [
@@ -133,4 +135,4 @@ const cardStore = create<GameState>((_set, _get) => ({
     }
   },
 }));
-export default cardStore;
+export default gameStore;

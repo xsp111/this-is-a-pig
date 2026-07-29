@@ -1,5 +1,5 @@
 import { useEffect, useRef, type MouseEvent, type ReactNode } from "react";
-import { twx } from "../../utils";
+import { twx } from "@utils";
 
 const modalStyles = {
   modalMask: {

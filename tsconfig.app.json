@@ -20,7 +20,16 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"erasableSyntaxOnly": true,
-		"noFallthroughCasesInSwitch": true
+		"noFallthroughCasesInSwitch": true,
+
+		"paths": {
+			"@/*": ["./src/*"],
+			"@store/*": ["./src/store/*"],
+			"@components/*": ["./src/components/*"],
+			"@hooks/*": ["./src/hooks/*"],
+			"@utils": ["./src/utils.ts"],
+			"@const": ["./src/const.ts"]
+		}
 	},
 	"include": ["src"]
 }

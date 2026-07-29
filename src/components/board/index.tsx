@@ -1,10 +1,10 @@
 import { useStore } from "zustand";
-import cardStore from "../../store/cardStore";
-import Card from "../card";
+import gameStore from "@store/gameStore";
+import Card from "@components/card";
 import ClickedCardArea from "./clickedCardArea";
 
 export default function Board() {
-  const cardList = useStore(cardStore, (state) => state.cardList);
+  const cardList = useStore(gameStore, (state) => state.cardList);
 
   return (
     <div className="w-[400px] h-[800px] bg-white rounded-xl shadow-lg p-4 flex flex-col items-center">
@@ -12,7 +12,7 @@ export default function Board() {
         <div className="w-full h-full relative">
           {cardList.map(
             (card, index) =>
-              card.status === "pending" && (
+              card?.status === "pending" && (
                 <Card key={card.id} card={card} index={index} />
               ),
           )}
