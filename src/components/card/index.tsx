@@ -11,16 +11,22 @@ const cardStyle = {
   display: "flex items-center justify-center",
   cursor: "cursor-pointer",
 };
-export default function Card({ card, index }: { card: Card; index: number }) {
+export default function Card({ card, index }: { card: Card; index?: number }) {
   const {
     id,
     pos: { x, y },
     status,
     type,
+    clickedPos,
+    toDisappear,
   } = card;
+  const isPending = status === "pending";
   const cardRef = useRef<HTMLDivElement>(null);
   const onClick = useStore(gameStore, (state) => state.onClick);
-  const setCardStatus = useStore(gameStore, (state) => state.setCardStatus);
+  const setClickedCardPos = useStore(
+    gameStore,
+    (state) => state.setClickedCardPos,
+  );
   const checkIsMatched = useStore(gameStore, (state) => state.checkIsMatched);
 
   const { boardWidth, boardHeight, cardSize, gridSize } = boardConfig;
@@ -30,7 +36,7 @@ export default function Card({ card, index }: { card: Card; index: number }) {
     if (!card) return;
     if (status === "clicked") {
       const { top, left } = getOriginalPos(x, y, index || 0);
-      card.animate(
+      const animation = card.animate(
         [
           {
             transform: `translateY(${top}px) translateX(${left}px)`,
@@ -40,11 +46,21 @@ export default function Card({ card, index }: { card: Card; index: number }) {
           },
         ],
         {
-          duration: 500,
+          duration: 3000,
           easing: "ease-in-out",
         },
-      ).onfinish = () => {
-        checkIsMatched(index);
+      );
+      animation.onfinish = () => {
+        console.log("click finish", { type });
+        if (index !== undefined) checkIsMatched(index);
+      };
+      animation.oncancel = () => {
+        console.log("cancel");
+        // setClickedCardPos(id, clickedPos);
+      };
+      animation.onremove = () => {
+        console.log("remove");
+        // setClickedCardPos(id, clickedPos);
       };
     }
   }, []);
@@ -52,25 +68,59 @@ export default function Card({ card, index }: { card: Card; index: number }) {
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
-    if (status === "moveAway") {
-      card.animate(
+    if (
+      index !== undefined &&
+      clickedPos !== undefined &&
+      index !== clickedPos
+    ) {
+      const animation = card.animate(
         [
           {
-            transform: `translateX(${-gridSize}px)`,
+            transform: `translateX(${-gridSize * (index - clickedPos)}px)`,
           },
           {
             transform: "",
           },
         ],
         {
-          duration: 500,
+          duration: 3000,
           easing: "ease-in-out",
         },
-      ).onfinish = () => {
-        setCardStatus(id, "clicked");
+      );
+      animation.onfinish = () => {
+        console.log("move finish", { type });
+        setClickedCardPos(id, index);
+      };
+      animation.oncancel = () => {
+        console.log("cancel");
+        // setClickedCardPos(id, clickedPos);
+      };
+      animation.onremove = () => {
+        console.log("remove");
+        // setClickedCardPos(id, clickedPos);
       };
     }
-  }, [status]);
+  }, [index]);
+
+  useEffect(() => {
+    if (toDisappear) {
+      const card = cardRef.current;
+      if (!card) return;
+      card.animate(
+        [
+          {},
+          {
+            scale: 0.5,
+            opacity: 0.2,
+          },
+        ],
+        {
+          duration: 3000,
+          easing: "ease-in-out",
+        },
+      ).onfinish = toDisappear;
+    }
+  }, [toDisappear]);
 
   return (
     <div
@@ -78,10 +128,12 @@ export default function Card({ card, index }: { card: Card; index: number }) {
       style={{
         width: `${cardSize}px`,
         height: `${cardSize}px`,
-        top: `${(y * gridSize) % boardHeight}px`,
-        left: `${(x * gridSize) % boardWidth}px`,
+        ...(isPending && {
+          top: `${(y * gridSize) % boardHeight}px`,
+          left: `${(x * gridSize) % boardWidth}px`,
+        }),
       }}
-      className={twx(cardStyle, status === "pending" ? "absolute" : "mr-2")}
+      className={twx(cardStyle, isPending ? "absolute" : "mr-2")}
       onClick={() => onClick(id)}
     >
       {type}

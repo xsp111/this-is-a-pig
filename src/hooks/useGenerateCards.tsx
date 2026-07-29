@@ -17,15 +17,17 @@ export default function useGenerateCards(isRandom: boolean = true) {
     if (gameStatus === "playing" && isRandom) {
       const { cardType, groupCount, groupSize } = cardConfig;
 
+      let id = 0;
       const generateCardGroup = () => {
         const type = cardType[getRandom(0, cardType.length)];
-        return Array.from({ length: groupSize }, () => generateCard(type));
+        return Array.from({ length: groupSize }, () =>
+          generateCard(type, id++),
+        );
       };
 
       const cardList = Array.from({ length: groupCount }, () =>
         generateCardGroup(),
       ).flat();
-
       clearClickedCardList();
       setCardList(cardList);
     }

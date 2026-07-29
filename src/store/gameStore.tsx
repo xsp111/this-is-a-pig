@@ -1,48 +1,53 @@
 import { create } from "zustand";
 import { getMatchPos } from "@utils";
+import { cardConfig } from "@const";
 
 export type Card = {
-  id: string;
   type: number;
+  status: "pending" | "clicked" | "matched";
+
+  // 在 pending 数组中的位置跟渲染坐标
+  id: number;
   pos: {
     x: number;
     y: number;
   };
-  status: "pending" | "clicked" | "moveAway" | "matched";
+
+  // 在 clicked 数组中的位置
+  clickedPos?: number;
+
+  toDisappear?: () => void;
 };
 
-export type CardList = Array<Card | undefined>;
+export type PendingCardList = Array<Card | undefined>;
 
 export type GameStatus = "playing" | "won" | "lost";
 
 interface GameState {
-  cardList: CardList;
-  clickedCardList: CardList;
+  cardList: PendingCardList;
+  clickedCardList: Card[];
   gameStatus: GameStatus;
   setGameStatus: (gameStatus: GameStatus) => void;
 
   // card method
-  pushCard: (card: Card) => void;
-  setCardList: (cardList: CardList) => void;
+  setCardList: (cardList: PendingCardList) => void;
   clearClickedCardList: () => void;
-  onClick: (id: string) => void;
-  setCardStatus: (id: Card["id"], status: Card["status"]) => void;
+  onClick: (id: Card["id"]) => void;
+  setClickedCardPos: (id: Card["id"], pos: number) => void;
   checkIsMatched: (index: number) => void;
 }
 
 const gameStore = create<GameState>((_set, _get) => ({
-  cardList: [],
+  cardList: Array.from(
+    { length: cardConfig.groupSize * cardConfig.groupCount },
+    () => undefined,
+  ),
   clickedCardList: [],
   gameStatus: "playing",
 
   setGameStatus: (gameStatus: GameStatus) => _set({ gameStatus }),
 
   // card method
-  pushCard: (card: Card) => {
-    _set((state) => ({
-      cardList: [...state.cardList, card],
-    }));
-  },
   setCardList: (cardList) => {
     _set({
       cardList,
@@ -58,58 +63,30 @@ const gameStore = create<GameState>((_set, _get) => ({
     // 已点击区域满了后无法点击
     if (clickedCardList.length >= 7) return;
 
-    const card = cardList.find((item) => item?.id === id);
+    const card = cardList[id];
     if (card) {
+      const newCardList = [...cardList];
+      newCardList[id] = undefined;
       const pos = getMatchPos(card.type, clickedCardList);
-      if (typeof pos === "number") {
-        const moveFromCurPos = clickedCardList.slice(pos + 1).map((card) => {
-          return {
-            ...card,
-            status: "moveAway",
-          };
-        }) as CardList;
-        _set((state) => ({
-          cardList: [...state.cardList.filter((item) => item?.id !== card.id)],
-          clickedCardList: [
-            ...clickedCardList.slice(0, pos + 1),
-            {
-              ...card,
-              status: "clicked",
-            },
-            ...moveFromCurPos,
-          ],
-        }));
-        return;
-      }
-
-      _set((state) => {
-        return {
-          cardList: [...state.cardList.filter((item) => item?.id !== card.id)],
-          clickedCardList: [
-            ...state.clickedCardList,
-            {
-              ...card,
-              status: "clicked",
-            },
-          ],
-        };
+      const newClickedCardList = clickedCardList.toSpliced(pos + 1, 0, {
+        ...card,
+        status: "clicked",
+        clickedPos: pos + 1,
+      });
+      _set({
+        cardList: newCardList,
+        clickedCardList: newClickedCardList,
       });
     }
   },
-  setCardStatus: (id, status) => {
+  setClickedCardPos: (id, pos) => {
     const { clickedCardList } = _get();
 
-    const index = clickedCardList.findIndex((card) => card?.id === id);
+    const index = clickedCardList.findIndex((card) => card.id === id);
+    clickedCardList[index].clickedPos = pos;
 
     _set({
-      clickedCardList: [
-        ...clickedCardList.slice(0, index),
-        {
-          ...clickedCardList[index],
-          status: status,
-        },
-        ...clickedCardList.slice(index + 1),
-      ] as CardList,
+      clickedCardList: [...clickedCardList],
     });
   },
   checkIsMatched: (index) => {
@@ -121,15 +98,23 @@ const gameStore = create<GameState>((_set, _get) => ({
       currentType === clickedCardList?.[index - 1]?.type &&
       currentType === clickedCardList?.[index - 2]?.type
     ) {
-      _set({
-        clickedCardList: [
-          ...clickedCardList.slice(0, index - 2),
-          ...clickedCardList.slice(index + 1),
-        ],
+      [
+        clickedCardList[index - 2],
+        clickedCardList[index - 1],
+        clickedCardList[index],
+      ].forEach((card) => {
+        card.toDisappear = () =>
+          _set({
+            clickedCardList: [
+              ...clickedCardList.slice(0, index - 2),
+              ...clickedCardList.slice(index + 1),
+            ],
+          });
       });
-      if (cardList.length === 0) {
-        setGameStatus("won");
-      }
+      _set({
+        clickedCardList: [...clickedCardList],
+      });
+      if (cardList.length === 0) setGameStatus("won");
     } else if (clickedCardList.length >= 7) {
       setGameStatus("lost");
     }

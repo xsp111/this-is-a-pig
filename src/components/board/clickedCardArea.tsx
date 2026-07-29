@@ -14,7 +14,7 @@ export default function ClickedCardArea() {
     <div className={twx(clickedCardAreaStyle)}>
       {clickedCardList.map(
         (card, index) =>
-          (card?.status === "clicked" || card?.status === "moveAway") && (
+          card.status === "clicked" && (
             <Card key={card.id} card={card} index={index} />
           ),
       )}
