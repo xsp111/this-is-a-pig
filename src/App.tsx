@@ -1,5 +1,5 @@
 import Board from './components/board';
-import Modal from './components/modal';
+import Modal from './components/modal/modal';
 import useGenerateCards from './hooks/useGenerateCards';
 import { twx } from './utils';
 

@@ -9,3 +9,9 @@ export const boardConfig = {
 	cardSize: 42,
 	gap: 8,
 };
+
+export const cardConfig = {
+	cardType: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	groupCount: 4,
+	groupSize: 3,
+};

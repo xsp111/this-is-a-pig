@@ -1,5 +1,5 @@
 import { useRef, type MouseEvent, type ReactNode } from 'react';
-import { twx } from '../utils';
+import { twx } from '../../utils';
 import './modal.css';
 
 const modalStyles = {
@@ -29,7 +29,24 @@ export default function Modal(props: ModalProps) {
 		const { clientX, clientY, target } = e;
 
 		const modalEl = modalRef.current;
-		if (!modalEl || target !== maskRef.current) return;
+		const maskEl = maskRef.current;
+		if (!modalEl || target !== maskEl) return;
+
+		maskEl.animate(
+			[
+				{
+					opacity: 1,
+				},
+				{
+					opacity: 0,
+				},
+			],
+			{
+				duration: 300,
+				fill: 'forwards',
+			},
+		);
+
 		modalEl.classList.add('modal-close-animation');
 		modalEl.style.setProperty('--target-x', `${clientX}px`);
 		modalEl.style.setProperty('--target-y', `${clientY}px`);

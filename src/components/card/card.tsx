@@ -1,10 +1,10 @@
 import { useStore } from 'zustand';
-import cardStore, { type Card } from '../store/cardStore';
+import cardStore, { type Card } from '../../store/cardStore';
 import { useEffect, useRef } from 'react';
 
 import './card.css';
-import { getOrignalPos, twx } from '../utils';
-import { boardConfig } from '../const';
+import { getOrignalPos, twx } from '../../utils';
+import { boardConfig } from '../../const';
 
 const cardStyle = {
 	box: 'border border-gray-300 bg-red-300 rounded-md shadow-sm',
@@ -17,13 +17,14 @@ export default function Card({ card, index }: { card: Card; index?: number }) {
 		id,
 		pos: { x, y },
 		status,
+		type,
 	} = card;
 	const cardRef = useRef<HTMLDivElement>(null);
 	const onClick = useStore(cardStore, (state) => state.onClick);
 	const { boardWidth, boardHeight, cardSize, gridSize } = boardConfig;
 
 	useEffect(() => {
-		if (status === 'completed' && cardRef.current) {
+		if (status === 'clicked' && cardRef.current) {
 			cardRef.current.classList.add('card-clicked-animation');
 			const { top, left } = getOrignalPos(x, y, index || 0);
 			cardRef.current.style.setProperty('--top', `${top}px`);
@@ -46,7 +47,7 @@ export default function Card({ card, index }: { card: Card; index?: number }) {
 			)}
 			onClick={() => onClick(id)}
 		>
-			{id}
+			{type}
 		</div>
 	);
 }

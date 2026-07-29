@@ -1,7 +1,7 @@
 import { useStore } from 'zustand';
 import cardStore from '../store/cardStore';
-import Card from './card';
-import { useEffect, useState } from 'react';
+import Card from './card/card';
+import { useEffect } from 'react';
 import { twx } from '../utils';
 import gameStatusStore from '../store/gameStatusStore';
 
@@ -47,7 +47,7 @@ function ClickedCardArea() {
 		if (clickedCardList.length === 7) {
 			setTimeout(() => {
 				setGameStatus('lost');
-			}, 700);
+			}, 500);
 		}
 	}, [clickedCardList.length]);
 
@@ -63,7 +63,7 @@ function ClickedCardArea() {
 		<div className={twx(clickedCardAreaStyle)}>
 			{clickedCardList.map(
 				(card, index) =>
-					card.status === 'completed' && (
+					card.status === 'clicked' && (
 						<Card key={card.id} card={card} index={index} />
 					),
 			)}

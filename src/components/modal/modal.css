@@ -1,5 +1,5 @@
 .modal-close-animation {
-	animation: modalCloseAnimation 0.3s ease-in-out forwards;
+	animation: modalCloseAnimation 0.3s linear forwards;
 }
 
 @keyframes modalCloseAnimation {

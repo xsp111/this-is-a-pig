@@ -1,8 +1,9 @@
 import { useStore } from 'zustand';
-import cardStore, { type Card } from '../store/cardStore';
+import cardStore from '../store/cardStore';
 import { useEffect } from 'react';
-import { boardConfig } from '../const';
+import { cardConfig } from '../const';
 import gameStatusStore from '../store/gameStatusStore';
+import { generateCard, getRandom } from '../utils';
 
 export default function useGenerateCards(isRandom: boolean = true) {
 	const setCardList = useStore(cardStore, (state) => state.setCardList);
@@ -16,22 +17,21 @@ export default function useGenerateCards(isRandom: boolean = true) {
 		(state) => state.setGameStatus,
 	);
 
-	const { col, line } = boardConfig;
-
 	useEffect(() => {
-		if (isRandom) {
-			const cardList = Array.from({ length: 50 }, (_, i) => {
-				const x = Math.floor(Math.random() * col);
-				const y = Math.floor(Math.random() * line);
-				return {
-					id: `${i}`,
-					pos: {
-						x: x % col,
-						y: y % line,
-					},
-					status: 'pending',
-				};
-			}) as Card[];
+		if (gameStatus === 'playing' && isRandom) {
+			const { cardType, groupCount, groupSize } = cardConfig;
+
+			const generateCardGroup = () => {
+				const type = cardType[getRandom(0, cardType.length)];
+				return Array.from({ length: groupSize }, () =>
+					generateCard(type),
+				);
+			};
+
+			const cardList = Array.from({ length: groupCount }, () =>
+				generateCardGroup(),
+			).flat();
+
 			clearClickedCardList();
 			setCardList(cardList);
 		}

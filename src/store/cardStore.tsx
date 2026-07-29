@@ -1,12 +1,14 @@
 import { create } from 'zustand';
+import { getMatchPos } from '../utils';
 
 export type Card = {
 	id: string;
+	type: number;
 	pos: {
 		x: number;
 		y: number;
 	};
-	status?: 'pending' | 'moving' | 'completed';
+	status: 'pending' | 'moving' | 'clicked' | 'matched';
 };
 
 interface CardState {
@@ -38,9 +40,30 @@ const cardStore = create<CardState>((_set, _get) => ({
 	},
 	onClick: (id: string) => {
 		const { cardList, clickedCardList } = _get();
+		// 失败后无法点击其他卡片
 		if (clickedCardList.length >= 7) return;
+
 		const card = cardList.find((item) => item.id === id);
 		if (card) {
+			const pos = getMatchPos(card.type, clickedCardList);
+			console.log({ pos, clickedCardList });
+			if (pos) {
+				_set((state) => ({
+					cardList: [
+						...state.cardList.filter((item) => item.id !== card.id),
+					],
+					clickedCardList: [
+						...clickedCardList.slice(0, pos + 1),
+						{
+							...card,
+							status: 'clicked',
+						},
+						...clickedCardList.slice(pos + 1),
+					],
+				}));
+				return;
+			}
+
 			_set((state) => {
 				return {
 					cardList: [
@@ -50,7 +73,7 @@ const cardStore = create<CardState>((_set, _get) => ({
 						...state.clickedCardList,
 						{
 							...card,
-							status: 'completed',
+							status: 'clicked',
 						},
 					],
 				};

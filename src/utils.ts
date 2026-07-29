@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 import { boardConfig } from './const';
+import type { Card } from './store/cardStore';
 
 export function getOrignalPos(x: number, y: number, index: number) {
 	const { boardHeight, gridSize } = boardConfig;
@@ -15,4 +16,30 @@ export function twx(
 	...classNames: string[]
 ) {
 	return twMerge(...Object.values(defaultConfig), ...classNames);
+}
+
+// get number [min, max)
+export function getRandom(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min)) + min;
+}
+
+export function generateCard(type: number): Card {
+	const { col, line } = boardConfig;
+	return {
+		id: crypto.randomUUID(),
+		pos: {
+			x: getRandom(0, col),
+			y: getRandom(0, line),
+		},
+		type,
+		status: 'pending',
+	};
+}
+
+export function getMatchPos(type: number, list: Card[]): number | undefined {
+	return (
+		list.length -
+		1 -
+		list.toReversed().findIndex((item) => item.type === type)
+	);
 }
