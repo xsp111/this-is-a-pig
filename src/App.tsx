@@ -20,10 +20,18 @@ export default function App() {
         onClose={() => setGameStatus("playing")}
         open={gameStatus !== "playing"}
       >
-        <div>
-          <h1>Congratulations!</h1>
-          <p>You won the game!</p>
-        </div>
+        {gameStatus === "won" && (
+          <div>
+            <h1>Congratulations!</h1>
+            <p>You won the game!</p>
+          </div>
+        )}
+        {gameStatus === "lost" && (
+          <div className="text-red-400 font-bold">
+            <h1>Sorry</h1>
+            <p>You lost the game!</p>
+          </div>
+        )}
       </Modal>
     </>
   );

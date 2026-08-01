@@ -94,7 +94,7 @@ const gameStore = create<GameState>((_set, _get) => ({
     const len = clickedCardList.length;
     if (len > boardConfig.col) return setGameStatus("lost");
     const index = findMatched(clickedCardList);
-    const { clickedAnimationDuration, groupSize } = cardConfig;
+    const { clickedAnimationDuration } = cardConfig;
     if (index !== undefined) {
       const toDisappearCards = clickedCardList.slice(index, index + 3).map(
         (card, i) =>
