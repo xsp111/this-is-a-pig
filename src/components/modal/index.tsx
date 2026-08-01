@@ -43,7 +43,7 @@ export default function Modal(props: ModalProps) {
   }, [open]);
 
   const onMaskClickAnimationClose = (e: MouseEvent) => {
-    const { clientX, clientY, target } = e;
+    const { clientX: clickedX, clientY: clickedY, target } = e;
 
     const modalEl = modalRef.current;
     const maskEl = maskRef.current;
@@ -69,8 +69,8 @@ export default function Modal(props: ModalProps) {
       [
         {},
         {
-          top: `${clientY}px`,
-          left: `${clientX}px`,
+          top: `${clickedY}px`,
+          left: `${clickedX}px`,
           width: "0px",
           height: "0px",
           opacity: "0",
@@ -81,12 +81,11 @@ export default function Modal(props: ModalProps) {
         easing: "linear",
         fill: "forwards",
       },
-    );
+    ).onfinish = () => {
+      onClose();
+    };
 
     modalEl.replaceChildren("");
-    setTimeout(() => {
-      onClose();
-    }, duration);
   };
 
   if (!open) return null;
